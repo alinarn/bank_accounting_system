@@ -4,15 +4,29 @@ class Account < ApplicationRecord
   validates :currency, length: { is: 3 }
   validates_uniqueness_of :currency, scope: :user_id
 
-  def self.deposit(account, deposit_amount)
-    return false unless amount_valid?(deposit_amount)
-    account.amount += deposit_amount
-    account.save!
-  end
+  class << self
+    def deposit(account, deposit_amount)
+      return false unless amount_valid?(deposit_amount)
+      account.balance += deposit_amount
+      account.save!
+    end
 
-  private
+    def transfer(account, recipient_account, transfer_amount)
+      return false if account.balance.nil?
+      withdraw(account, transfer_amount)
+      deposit(recipient_account, transfer_amount)
+    end
 
-  def self.amount_valid?(amount)
-    amount >= 0.01
+    private
+
+    def amount_valid?(amount)
+      amount >= 0.01
+    end
+
+    def withdraw(account, amount)
+      return false unless amount_valid?(amount)
+      account.balance -= amount
+      account.save!
+    end
   end
 end
