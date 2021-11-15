@@ -40,6 +40,18 @@ class AccountsController < ApplicationController
       start_date: params[:start_date],
       end_date: params[:end_date]
       ).create_statement("deposit")
+
+    render json: { statement_generated: true }
+  end
+
+  def min_avg_max_statement
+    AccountStatementService.new(
+      tag: params[:tag],
+      start_date: params[:start_date],
+      end_date: params[:end_date]
+      ).create_statement("min_avg_max")
+
+    render json: { statement_generated: true }
   end
 
   private

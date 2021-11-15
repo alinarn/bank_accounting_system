@@ -1,17 +1,20 @@
 class AccountStatementService
-  attr_accessor :user_id, :currency, :start_date, :end_date
+  attr_accessor :user_id, :currency, :start_date, :end_date, :tag
 
   def initialize(params)
     @user_id = params[:user_id]
     @currency = params[:currency]
     @start_date = params[:start_date]
     @end_date = params[:end_date]
+    @tag = params[:tag]
   end
 
   def create_statement(statement_type)
     case statement_type
     when "deposit"
       create_deposit_statement
+    when "min_avg_max"
+      create_min_avg_max_statement  
     end
   end
 
@@ -25,6 +28,18 @@ class AccountStatementService
       print_statement(account, transactions)
     end
 
+    def create_min_avg_max_statement
+      query = Transaction.joins(account: { user: :tags })
+              .where(tags: { tag: tag })
+              .where(status: "received", created_at: start_date..end_date)
+
+      minimum = query.minimum(:amount)
+      average = query.average(:amount)
+      maximum = query.maximum(:amount)
+
+      print_min_avg_max_statement(minimum, average, maximum)     
+    end
+
     def print_statement(account, transactions)
      statement = transactions.map do |record|
        <<~EOM
@@ -34,5 +49,15 @@ class AccountStatementService
      end
      puts "User id - #{account.user_id}, account statement:"
      puts statement
+   end
+
+   def print_min_avg_max_statement(min, avg, max)
+     puts <<~EOM
+      Minimum, maximum and average transfered amount filtered by user tag: "#{tag}" in a given time
+      (#{start_date} - #{end_date})
+      minimum amount -- #{min}
+      maximum amount -- #{max}
+      average amount -- #{avg} 
+    EOM
    end
 end
