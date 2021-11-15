@@ -33,10 +33,19 @@ class AccountsController < ApplicationController
     end
   end
 
+  def deposit_statement
+    AccountStatementService.new(
+      user_id: params[:user_id],
+      currency: params[:currency],
+      start_date: params[:start_date],
+      end_date: params[:end_date]
+      ).create_statement("deposit")
+  end
+
   private
 
   def account_params
-    params.permit(:currency, :user_id, :amount, :recipient_id)
+    params.require(:account).permit(:currency, :user_id, :amount, :recipient_id, :start_date, :end_date)
   end
 
   def set_account(user_id)

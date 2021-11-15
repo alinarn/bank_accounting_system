@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   
   post '/users/:user_id/accounts/:currency/deposit', to: 'accounts#deposit'
   post 'users/:user_id/accounts/:currency/transfer', to: 'accounts#transfer'
+
+  get 'accounts/deposit_statement', to: 'accounts#deposit_statement'
 end
