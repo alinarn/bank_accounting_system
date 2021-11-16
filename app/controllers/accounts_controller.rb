@@ -1,7 +1,7 @@
 class AccountsController < ApplicationController
 
   def create
-    account = Account.new(account_params)
+    account = set_account(params[:user_id])
 
     if account.save
       render json: account, status: :created
