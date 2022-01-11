@@ -27,7 +27,7 @@ class AccountsController < ApplicationController
     recipient_account = set_account(params[:recipient_id])
 
     if Account.transfer(account, recipient_account, params[:amount].to_d)
-      render json: { transfered: true }
+      render json: { transfered: true }, status: :ok
     else
       return head :unprocessable_entity
     end
