@@ -1,3 +1,5 @@
+require 'csv'
+
 class AccountStatementService
   attr_accessor :user_id, :currency, :start_date, :end_date, :tag
 
@@ -25,7 +27,15 @@ class AccountStatementService
       transactions = Transaction.all
                     .where(account_id: account.id, status: :deposited)
                     .filter_by_date(start_date, end_date)                     
-      print_statement(account, transactions)
+
+      file_path = "#{Rails.root}/tmp/#{Date.today}-deposit_statement.csv"
+      headers = %w(user_id date amount currency)
+
+      CSV.open(file_path, "w", write_headers: true, headers: headers) do |csv|
+        transactions.each do |record|
+          csv << [account.user_id, record.created_at.to_formatted_s(:long), record.amount, account.currency]
+        end
+      end
     end
 
     def create_min_avg_max_statement
@@ -37,27 +47,11 @@ class AccountStatementService
       average = query.average(:amount)
       maximum = query.maximum(:amount)
 
-      print_min_avg_max_statement(minimum, average, maximum)     
+      file_path = "#{Rails.root}/tmp/#{Date.today}-min_avg_max_statement.csv"
+      headers = %w(tag min_amount max_amount avg_amount date)
+
+      CSV.open(file_path, "w", write_headers: true, headers: headers) do |csv|
+        csv << [tag, minimum, maximum, average, "#{start_date} - #{end_date}"]
+      end     
     end
-
-    def print_statement(account, transactions)
-     statement = transactions.map do |record|
-       <<~EOM
-         #{record.created_at.to_formatted_s(:long)} - #{record.amount} (#{account.currency})
-         ***
-       EOM
-     end
-     puts "User id - #{account.user_id}, account statement:"
-     puts statement
-   end
-
-   def print_min_avg_max_statement(min, avg, max)
-     puts <<~EOM
-      Minimum, maximum and average transfered amount filtered by user tag: "#{tag}" in a given time
-      (#{start_date} - #{end_date})
-      minimum amount -- #{min}
-      maximum amount -- #{max}
-      average amount -- #{avg} 
-    EOM
-   end
 end

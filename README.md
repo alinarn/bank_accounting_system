@@ -47,11 +47,12 @@ if the recipient user doesn't have an account in provided currency, it will be c
 curl -H 'Content-Type: application/json' -X POST localhost:3000/users/:user_id/accounts/USD/transfer -d '{"amount": 150, "recipient_id": 3}'
 ```
 
-## Generating Statements
-(temporarily outputs in terminal only)
+## Generating CSV Statements
 
 ### Deposit statement
 deposit amount for the period of time filtered by currency and users
+
+CSV statements can be found in `tmp` directory
 
 `start_date` and `end_date` params provide in ISO format (YYYY-MM-DD)
 
