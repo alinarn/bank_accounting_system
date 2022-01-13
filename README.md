@@ -49,10 +49,10 @@ curl -H 'Content-Type: application/json' -X POST localhost:3000/users/:user_id/a
 
 ## Generating CSV Statements
 
+CSV statements can be found in `tmp` directory
+
 ### Deposit statement
 deposit amount for the period of time filtered by currency and users
-
-CSV statements can be found in `tmp` directory
 
 `start_date` and `end_date` params provide in ISO format (YYYY-MM-DD)
 
